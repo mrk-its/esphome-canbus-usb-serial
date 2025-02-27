@@ -131,7 +131,7 @@ bool CanbusUsbSerial::setup_internal() {
 void CanbusUsbSerial::send_serial_message(uint32_t can_id, bool use_extended_id, bool remote_transmission_request,
                                       const std::vector<uint8_t> &data) {
   char buf[256];
-  sprintf(buf, "%03x", can_id);
+  sprintf(buf, "%03lx", can_id);
   if (!data.empty()) {
     int offs = 0;
     for (auto ptr = data.begin(); ptr < data.end(); ptr++, offs++) {
