@@ -10,10 +10,8 @@ jobs:
       fail-fast: false
       max-parallel: 2
       matrix:
-        framework_opts:
-          - "type=esp-idf version=recommended platform_version=51.03.07"
-          - "type=esp-idf version=5.3.1 platform_version=6.9.0"
-          # - "type=arduino version=recommended platform_version=5.4.0"
+        framework:
+          - "{type: esp-idf"}
         board:
           - esp32-c3-devkitm-1
           - esp32-s3-devkitc-1
@@ -21,7 +19,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Configure
-        run: ${{matrix.framework_opts}} board=${{matrix.board}} envsubst < test/config.yaml.template > test/config.yaml
+run: framework:"${{matrix.framework}}" board=${{matrix.board}} envsubst < test/config.yaml.template > test/config.yaml
       - name: Compile
         uses: esphome/build-action@v6
         id: esphome-build
