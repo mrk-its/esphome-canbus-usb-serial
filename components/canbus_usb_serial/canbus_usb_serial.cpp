@@ -109,22 +109,11 @@ bool CanbusUsbSerial::setup_internal() {
   if(!this->canbus) {
     return true;
   }
-  Automation<std::vector<uint8_t>, uint32_t, bool> *automation;
-  LambdaAction<std::vector<uint8_t>, uint32_t, bool> *lambdaaction;
-  canbus::CanbusTrigger *canbus_canbustrigger;
-
-  canbus_canbustrigger = new canbus::CanbusTrigger(this->canbus, 0, 0, false);
-  canbus_canbustrigger->set_component_source(LOG_STR("canbus_proxy"));
-  App.register_component(canbus_canbustrigger);
-  automation = new Automation<std::vector<uint8_t>, uint32_t, bool>(canbus_canbustrigger);
-  auto cb = [this](std::vector<uint8_t> x, uint32_t can_id, bool remote_transmission_request) -> void {
-    trigger(can_id, this->use_extended_id_, remote_transmission_request, x);
-    this->send_serial_message(can_id, this->use_extended_id_, remote_transmission_request, x);
+  auto cb = [this](uint32_t can_id, bool extended_id, bool rtr, const std::vector<uint8_t> &data) -> void {
+    this->send_serial_message(can_id, extended_id, rtr, data);
+    trigger(can_id, extended_id, rtr, data);
   };
-  lambdaaction = new LambdaAction<std::vector<uint8_t>, uint32_t, bool>(cb);
-  automation->add_actions({lambdaaction});
-  ESP_LOGI(TAG, "trigger installed!");
-
+  this->canbus->add_callback(cb);
   return true;
 }
 
