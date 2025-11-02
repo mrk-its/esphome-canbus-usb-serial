@@ -11,7 +11,7 @@ jobs:
       max-parallel: 2
       matrix:
         framework:
-          - "{type: esp-idf"}
+          - "{type: esp-idf}"
         board:
           - esp32-c3-devkitm-1
           - esp32-s3-devkitc-1
