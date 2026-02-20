@@ -100,6 +100,7 @@ void CanbusUsbSerial::trigger(uint32_t can_id, bool use_extended_id, bool remote
   // fire all triggers
   // TODO: currently we can't check can_id, can_mask, remote_transmission_request because these trigger fields
   // are protected
+  this->callback_manager_(can_id, use_extended_id, remote_transmission_request, data);
   for (auto *trigger : this->triggers_) {
     trigger->trigger(data, can_id, remote_transmission_request);
   }
@@ -135,7 +136,6 @@ canbus::Error CanbusUsbSerial::send_message_no_loopback(struct canbus::CanFrame 
   if (this->canbus) {
     this->canbus->send_data(frame->can_id, frame->use_extended_id, frame->remote_transmission_request, data);
   }
-  this->callback_manager_(frame->can_id, frame->use_extended_id, frame->remote_transmission_request, data);
   trigger(frame->can_id, frame->use_extended_id, frame->remote_transmission_request, data);
   return canbus::ERROR_OK;
 }
