@@ -96,7 +96,7 @@ void CanbusUsbSerial::loop() {
 }
 
 void CanbusUsbSerial::trigger(uint32_t can_id, bool use_extended_id, bool remote_transmission_request,
-                          const std::vector<uint8_t> &data) {
+                              const std::vector<uint8_t> &data) {
   // fire all triggers
   // TODO: currently we can't check can_id, can_mask, remote_transmission_request because these trigger fields
   // are protected
@@ -106,7 +106,7 @@ void CanbusUsbSerial::trigger(uint32_t can_id, bool use_extended_id, bool remote
 }
 
 bool CanbusUsbSerial::setup_internal() {
-  if(!this->canbus) {
+  if (!this->canbus) {
     return true;
   }
   auto cb = [this](uint32_t can_id, bool extended_id, bool rtr, const std::vector<uint8_t> &data) -> void {
@@ -118,7 +118,7 @@ bool CanbusUsbSerial::setup_internal() {
 }
 
 void CanbusUsbSerial::send_serial_message(uint32_t can_id, bool use_extended_id, bool remote_transmission_request,
-                                      const std::vector<uint8_t> &data) {
+                                          const std::vector<uint8_t> &data) {
   char buf[256];
   sprintf(buf, "%03lx", can_id);
   if (!data.empty()) {
@@ -132,16 +132,17 @@ void CanbusUsbSerial::send_serial_message(uint32_t can_id, bool use_extended_id,
 
 canbus::Error CanbusUsbSerial::send_message_no_loopback(struct canbus::CanFrame *frame) {
   std::vector<uint8_t> data = std::vector<uint8_t>(frame->data, frame->data + frame->can_data_length_code);
-  if(this->canbus) {
+  if (this->canbus) {
     this->canbus->send_data(frame->can_id, frame->use_extended_id, frame->remote_transmission_request, data);
   }
+  this->callback_manager_(frame->can_id, frame->use_extended_id, frame->remote_transmission_request, data);
   trigger(frame->can_id, frame->use_extended_id, frame->remote_transmission_request, data);
   return canbus::ERROR_OK;
 }
 
 canbus::Error CanbusUsbSerial::send_message(struct canbus::CanFrame *frame) {
   std::vector<uint8_t> data = std::vector<uint8_t>(frame->data, frame->data + frame->can_data_length_code);
-  if(this->canbus) {
+  if (this->canbus) {
     this->canbus->send_data(frame->can_id, frame->use_extended_id, frame->remote_transmission_request, data);
   }
   send_serial_message(frame->can_id, frame->use_extended_id, frame->remote_transmission_request, data);
@@ -150,5 +151,5 @@ canbus::Error CanbusUsbSerial::send_message(struct canbus::CanFrame *frame) {
 
 canbus::Error CanbusUsbSerial::read_message(struct canbus::CanFrame *frame) { return canbus::ERROR_NOMSG; };
 
-}  // namespace canbus_proxy
+}  // namespace canbus_usb_serial
 }  // namespace esphome
